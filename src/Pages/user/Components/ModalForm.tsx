@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react/display-name */
 import React, { useImperativeHandle, useRef, useState } from 'react'
 import { Button, Form, FormInstance, Input, Modal } from 'antd'
 import { defaultFormItemLayout } from '../../../Themes/styles'
@@ -11,9 +14,6 @@ type ModalFormProps = {
 
 export type ModalFormMethod = {
     setVisible: (visible: boolean) => void
-    setData: (data?: User) => void
-
-    getVisible: () => boolean
 }
 
 
@@ -31,8 +31,6 @@ const ModalForm = React.forwardRef<ModalFormMethod, ModalFormProps>(({ onFinishe
                     form.current?.resetFields()
                 }
             },
-            setData: value => { },
-            getVisible: () => visible,
         }
     })
     //@ts-ignore
@@ -41,8 +39,8 @@ const ModalForm = React.forwardRef<ModalFormMethod, ModalFormProps>(({ onFinishe
             id: generateId(),
             firstName: value.first_name,
             lastName: value.last_name,
-            gender: 1 as 0 | 1,
-            birthday: '25/05/2001'
+            gender: value.gender,
+            birthday: value.birthday
         }
 
         console.log("PARRRAAAAAAM: ", param)
@@ -53,12 +51,25 @@ const ModalForm = React.forwardRef<ModalFormMethod, ModalFormProps>(({ onFinishe
             setVisible(false)
         })
 
-        console.log("USSSEEER" ,UserApi)
-
         onFinished()
     }
 
-    const onOk = () => { }
+    const onOk = () => {
+        const param = {
+            id: generateId(),
+            firstName: form.current?.getFieldValue('first_name') ?? '',
+            lastName: form.current?.getFieldValue('last_name') ?? '',
+            gender: form.current?.getFieldValue('gender') ?? '',
+            birthday: form.current?.getFieldValue('birthday') ?? '',
+        }
+        setLoading(true)
+        UserApi.create({ input: param }).then(r => {
+            setLoading(false)
+            setVisible(false)
+        })
+
+        onFinished()
+    }
 
     return (
         <Modal
@@ -76,7 +87,12 @@ const ModalForm = React.forwardRef<ModalFormMethod, ModalFormProps>(({ onFinishe
                 <Form.Item name="last_name" {...defaultFormItemLayout} label="Last Name">
                     <Input placeholder='Last Name' />
                 </Form.Item>
-
+                <Form.Item name="gender" {...defaultFormItemLayout} label="Gender">
+                    <Input placeholder='Gender' />
+                </Form.Item>
+                <Form.Item name="birthday" {...defaultFormItemLayout} label="Birthday">
+                    <Input placeholder='Birthday' />
+                </Form.Item>
                 <Form.Item {...defaultFormItemLayout}>
                     <Button htmlType='submit'>Save</Button>
                 </Form.Item>
