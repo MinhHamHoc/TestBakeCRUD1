@@ -1,26 +1,29 @@
-import React, { useRef, useState, useEffect } from 'react'
-import { Row, Col, Card } from 'antd'
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/ban-types */
+import React, { useRef } from 'react'
+import { Row, Col, Card, Button } from 'antd'
 import { Product } from '../../model/product'
 import { ProductApi } from '../../apis/product'
+import { useProductList } from '../../Hooks/product';
+import ModalForm, { ModalFormMethod } from './Components/ModalForm'
+
 
 const { Meta } = Card;
 
-type ProductPageProps = {
-
-}
+type ProductPageProps = {}
 
 const ProductPage: React.FC<ProductPageProps> = () => {
-    const [data, setData] = useState<Product[]>([])
-    const [error, setError] = useState<boolean | string>(false)
-    const [loading, setLoading] = useState<boolean>(true)
+     const { data, loading, error, fetch } = useProductList()
 
-    useEffect(() => {
-        ProductApi.list().then(r => {
-            setData(r.data)
-            setError(false)
-            setLoading(false)
-        })
-    }, [])
+    const modal = useRef<ModalFormMethod>(null)
+
+    const onCreate = () => {
+        modal.current?.setVisible(true)
+    }
+
+    const onFinished = () => {
+        fetch()
+    }
 
     return (
         <>
@@ -44,6 +47,8 @@ const ProductPage: React.FC<ProductPageProps> = () => {
                             )
                         })}
                     </Row>
+                    <Button onClick={onCreate}>Create New Product</Button>
+                    <ModalForm ref={modal} onFinished={onFinished} />
                 </>
             )}
 

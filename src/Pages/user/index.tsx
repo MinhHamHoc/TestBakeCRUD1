@@ -1,40 +1,15 @@
 import React, { useRef, useState, useEffect } from 'react'
-import { Table, TableProps, Card } from 'antd'
+import { Table, TableProps, Button } from 'antd'
 import { User } from '../../model/user'
 import { UserApi } from '../../apis/user'
+import { userUserList } from '../../Hooks/user'
+import modal from 'antd/lib/modal'
+import ModalForm, { ModalFormMethod } from './Components/ModalForm'
 
-
-type UserPageProps = {
-
-}
+type UserPageProps = {}
 
 const UserPage: React.FC<UserPageProps> = () => {
-  const [loading, setLoading] = useState<boolean>(true)
-  const [data, setData] = useState<User[]>([])
-  const [error, setError] = useState<boolean | string>(false)
-  const [page, setPage] = useState<Page>({
-    current: 1,
-    max: 10
-  })
-
-  useEffect(() => {
-    UserApi.list().then(r => {
-      setData(r.data)
-      if (r.page) (setPage(r.page))
-      setError(false)
-      setLoading(false)
-    })
-
-    // setTimeout(() => {
-    //   setData(fake_data)
-    //   setError(false)
-    //   setPage({
-    //     current: 1,
-    //     max: 10,
-    //   })
-    //   setLoading(false)
-    // }, 1000)
-  }, [])
+  const { data, loading, error, page, fetch } = userUserList()
 
   const columns = useRef<TableProps<User>['columns']>([
     {
@@ -73,15 +48,28 @@ const UserPage: React.FC<UserPageProps> = () => {
     }
   ])
 
+  const modal = useRef<ModalFormMethod>(null)
+
+  const onCreate = () => {
+    modal.current?.setVisible(true)
+  }
+
+  const onFinished = () => {
+    fetch()
+  }
+
   return (
     <>
-      {error ? (
-        <p>{error}</p>
-      ) : (
-        <>
-        <Table loading={loading} dataSource={data} columns={columns.current} />
-        </>
-      )}
+      <div className="view-create">
+        <Button onClick={onCreate}>Create</Button>
+      </div>
+      <Table
+        rowKey={item => item.id}
+        loading={loading}
+        dataSource={data}
+        columns={columns.current}
+      />
+      <ModalForm ref={modal} onFinished={onFinished} />
     </>
 
   )

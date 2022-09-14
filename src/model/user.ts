@@ -38,6 +38,7 @@ export class User implements UserInterface {
     const keys = Object.keys(json)
     for(let index = 0; index < keys.length; index += 1) {
       const key = keys[index]
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       this[key] = json[key]
     }
